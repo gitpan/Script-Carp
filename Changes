@@ -1,5 +1,10 @@
 Revision history for Script-Carp
 
+0.02    2009-06-08 14:37:59
+	modify test scrip for perl 5.6.2
+	fix double "Died" message in some cases
+	flx document.
+
 0.01    2009-06-02/1:30
         First version
 

@@ -2,13 +2,13 @@ use strict;
 use warnings;
 use Script::Carp -stop, -ignore_eval;
 use Carp ();
+use IO::Scalar;
 
 my $err = '';
 
 {
-  local *STDERR;
-  open STDERR, ">", \$err or die $!;
-  close STDIN;
+  local *STDERR;  close STDIN;
+  tie *STDERR, "IO::Scalar", \$err;
   eval {
     Carp::croak "123456789";
   };

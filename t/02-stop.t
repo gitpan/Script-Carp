@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 use Script::Carp -stop, -ignore_eval;
-
+use IO::Scalar;
 my $err = '';
 
 {
   local *STDERR;
-  open STDERR, ">", \$err or die $!;
+  tie *STDERR, "IO::Scalar", \$err;
   close STDIN;
   eval {
     die;

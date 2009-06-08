@@ -10,7 +10,11 @@ my $_die = sub {};
 
 *CORE::GLOBAL::die = sub {
   my ($package, $filename, $line) = caller;
-  $_die->('Died ', @_, " at $filename line $line.\n")
+  if (defined $_[0] and $_[0] =~/^Died /) {
+    $_die->(@_)
+  } else {
+    $_die->('Died ', @_, " at $filename line $line.\n")
+  }
 };
 $SIG{__DIE__} = sub { $_die->(@_) };
 
@@ -68,12 +72,22 @@ sub import {
       CORE::die @args;
     } else {
       print STDERR @args, $IGNORE_EVAL ? '' : " at $filename line $line.\n";
+      _auto_flush();
       for (@subs) {
+        _auto_flush();
         $_->(@args);
       }
       exit 255 unless $IGNORE_EVAL;
     }
   };
+}
+
+sub _auto_flush {
+  $| = 1;
+  my $fh = select;
+  select STDERR;
+  $| = 1;
+  select $fh;
 }
 
 *setup = \&import;
@@ -82,13 +96,9 @@ sub import {
 
 Script::Carp - provide some way to leave messages when script died
 
-=head1 VERSION
-
-Version 0.01
-
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -97,7 +107,7 @@ use this with options.
 
   use Script::Carp -stop; # display error and wait STDIN
   use Script::Carp -file => "error.txt"; # write message to error.txt
-  use Script::Carp -log  => "error_log.txt"; # append message to error.txt
+  use Script::Carp -log  => "error_log.txt"; # append message to error_log.txt
   use Script::Carp -stop, -file => "error.txt"; # mixed the above
 
 use class method with options
@@ -151,7 +161,7 @@ or
  Script::Carp->setup(-log => 'log_file_name');
 
 It is like file, but it will not clear file content.
-When script died, messages are appended to "file_name".
+When script died, messages are appended to "log_file_name".
 
 =head1 METHOD
 
