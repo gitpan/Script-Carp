@@ -14,12 +14,12 @@ close $in;
 open my $out, ">", "./t/tmp/error_log.txt" or die $!;
 close $out;
 
-ok($line =~m{\w+ \w+  \d+ \d+:\d+:\d+ \d+
+ok($line =~m{\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+
 Died 123456789 at ./t/bin/log.pl line 5.
-\w+ \w+  \d+ \d+:\d+:\d+ \d+
+\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+
 Died 223456789 at ./t/bin/log.pl line 6.
-\w+ \w+  \d+ \d+:\d+:\d+ \d+
+\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+
 Died 323456789 at ./t/bin/log.pl line 7.
-\w+ \w+  \w+ \d+:\d+:\d+ \d+
+\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+
 Died 423456789 at ./t/bin/log.pl line 8.
 }, $line);
