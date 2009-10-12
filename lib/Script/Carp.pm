@@ -10,8 +10,11 @@ my $_die = sub {};
 
 *CORE::GLOBAL::die = sub {
   my ($package, $filename, $line) = caller;
+
   if (defined $_[0] and $_[0] =~/^Died /) {
     $_die->(@_)
+  } elsif (defined $_[0] and $_[0] =~/ at $filename line $line\./)  {
+    $_die->('Died ', @_);
   } else {
     $_die->('Died ', @_, " at $filename line $line.\n")
   }
@@ -46,6 +49,41 @@ our $FLGS =
        print $out @args;
        close $out;
      };
+   },
+   -clip => sub {
+     eval "require Clipboard; Clipboard->import()";
+     unless($@) {
+       my ($args) = @_;
+       return sub {
+         eval {
+           Clipboard->copy(join "", @_) if @_;
+         };
+         if ($@) {
+           warn $@;
+         }
+       }
+     } else {
+       my $msg = "You need Clipboard module.";
+       warn $msg;
+       return sub {};
+     } 
+   },
+   -beep => sub {
+     local $@;
+     eval "require Audio::Beep";
+     unless ($@) {
+       my ($args) = @_;
+       $args->[0] ||= "c' d' e'";
+       my $beep = $args->[0] =~/^-/ ? "c' d' e'" : shift @$args;
+       return sub {
+         Audio::Beep->new->play($beep);
+       }
+     } else {
+       my $msg = "You need Audio::Beep module.";
+       $msg .= ' you may need "modprobe pcspkr" and/or "xset b on"' if $^O =~/linux/i;
+       warn $msg;
+       return sub {};
+     }
    },
    -ignore_eval => sub {
      # only for test
@@ -94,11 +132,11 @@ sub _auto_flush {
 
 =head1 NAME
 
-Script::Carp - provide some way to leave messages when script died
+Script::Carp - provide some ways to leave messages when script died
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 
 =head1 SYNOPSIS
@@ -107,8 +145,10 @@ use this with options.
 
   use Script::Carp -stop; # display error and wait STDIN
   use Script::Carp -file => "error.txt"; # write message to error.txt
-  use Script::Carp -log  => "error_log.txt"; # append message to error_log.txt
   use Script::Carp -stop, -file => "error.txt"; # mixed the above
+  use Script::Carp -log  => "error_log.txt"; # append message to error_log.txt
+  use Script::Carp -beep => "c d e f g"; # beep
+  use Script::Carp -clip; # message is copied to clipboard
 
 use class method with options
 
@@ -116,6 +156,8 @@ use class method with options
   Script::Carp->setup(-file => "error.txt");
   Script::Carp->setup(-log => "error_log.txt");
   Script::Carp->setup(-stop, -file => "error.txt");
+  Script::Carp->setup(-beep => "c d e f g");
+  Script::Carp->setup(-clip);
 
 =head1 DESCRIPTION
 
@@ -162,6 +204,30 @@ or
 
 It is like file, but it will not clear file content.
 When script died, messages are appended to "log_file_name".
+
+=head2 -beep
+
+ use Script::Carp -beep;
+ use Script::Carp -beep => "c d e f g";
+
+or
+
+ Script::Carp->setup(-beep);
+ Script::Carp->setup(-beep => "c d e f g");
+
+beep when script died. It requires Audio::Beep module.
+If you use Linux, you may need to 'modprobe pcspkr", 'xset -b on'
+
+=head2 -clip
+
+ use Script::Carp -clip;
+
+or
+
+ Script::Carp->setup(-clip);
+
+message is copied to clipboard when script died.
+It requires Clipboard module.
 
 =head1 METHOD
 
