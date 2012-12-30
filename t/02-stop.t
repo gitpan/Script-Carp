@@ -12,8 +12,9 @@ my $err = '';
     die;
   };
 }
-my $msg = "Died  at t/02-stop.t line 12.\nHit Enter to exit:";
+my $msg = "Died  at t/02-stop.t line 12\nHit Enter to exit:";
 my $ng = 0;
+$err =~s{(line \d+)\.}{$1}g;
 print (($err eq $msg) ? "ok 1\n" : ($ng = "not ok 1\n"));
 if ($ng) {
   if ($err =~ s{^(.)}{# $1}mg) {

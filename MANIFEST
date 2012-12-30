@@ -15,4 +15,5 @@ t/bin/file.pl
 t/bin/file-die.pl
 t/bin/log.pl
 t/tmp/error_log.txt
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml
+META.json                                Module JSON meta-data (added by MakeMaker)

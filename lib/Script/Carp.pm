@@ -136,7 +136,7 @@ Script::Carp - provide some ways to leave messages when script died
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 
 =head1 SYNOPSIS

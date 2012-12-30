@@ -15,6 +15,7 @@ my $err = '';
 }
 my $msg = "123456789 at t/03-croak.t line 13\n\teval {...} called at t/03-croak.t line 12\nHit Enter to exit:";
 my $ng = 0;
+$err =~s{(line \d+)\.}{$1}g;
 print (($err eq $msg) ? "ok 1\n" : ($ng = "not ok 1\n"));
 if ($ng) {
   if ($err =~ s{^(.)}{# $1}mg) {
